@@ -18,4 +18,9 @@ public interface IRoleService extends IBaseService<Role> {
 	 */
 	void auth(Long roleId, List<Long> resourceIds);
 	
+	void auth(Long roleId, Long resourceId);
+	
+	void removeAuth(Long roleId, Long resourceId);
+	
+	List<Long> findIdsByResourceId(Long resourceId);
 }

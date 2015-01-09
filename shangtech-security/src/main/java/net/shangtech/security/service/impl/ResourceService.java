@@ -1,11 +1,13 @@
 package net.shangtech.security.service.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import net.shangtech.security.dao.IRoleToResourceDao;
 import net.shangtech.security.entity.Resource;
 import net.shangtech.security.entity.RoleToResource;
 import net.shangtech.security.service.IResourceService;
+import net.shangtech.security.service.bo.ResourceBo;
 
 @Service
 @Transactional
@@ -67,5 +70,29 @@ public class ResourceService extends BaseService<Resource> implements IResourceS
 			});
 		}
 	    return list;
+    }
+
+	@Override
+    public ResourceBo findAllResources() {
+	    ResourceBo root = new ResourceBo();
+	    root.setCode("ROOT");
+	    root.setId(Resource.DEFAULT_ROOT_ID);
+	    root.setName("ROOT");
+	    LinkedList<ResourceBo> list = new LinkedList<>();
+	    list.add(root);
+	    while(!list.isEmpty()){
+	    	ResourceBo bo = list.remove();
+	    	List<Resource> children = dao.findByParentId(bo.getId());
+	    	if(!CollectionUtils.isEmpty(children)){
+	    		bo.setChildren(new ArrayList<ResourceBo>());
+	    		children.forEach(resource -> {
+	    			ResourceBo child = new ResourceBo();
+	    			BeanUtils.copyProperties(resource, child);
+	    			bo.getChildren().add(child);
+	    			list.add(child);
+	    		});
+	    	}
+	    }
+	    return root;
     }
 }

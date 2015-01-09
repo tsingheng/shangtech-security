@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.shangtech.framework.service.IBaseService;
 import net.shangtech.security.entity.Resource;
+import net.shangtech.security.service.bo.ResourceBo;
 
 public interface IResourceService extends IBaseService<Resource> {
 
@@ -11,4 +12,5 @@ public interface IResourceService extends IBaseService<Resource> {
 	
 	List<Long> findIdsByRoleId(Long roleId);
 	
+	ResourceBo findAllResources();
 }

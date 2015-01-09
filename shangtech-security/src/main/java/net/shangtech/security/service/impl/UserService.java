@@ -2,6 +2,7 @@ package net.shangtech.security.service.impl;
 
 import java.util.Collection;
 
+import net.shangtech.framework.dao.support.MapHolder;
 import net.shangtech.framework.service.BaseService;
 import net.shangtech.security.dao.IRoleDao;
 import net.shangtech.security.dao.IUserDao;
@@ -28,13 +29,17 @@ public class UserService extends BaseService<User> implements IUserService {
 	@Autowired private IUserToRoleDao userToRoleDao;
 
 	@Override
-    public void removeRole(Long userId, Long roleId) {
+    public void removeRole(Long userId, Collection<Long> roleIds) {
 	    Assert.notNull(userId);
-	    Assert.notNull(roleId);
-	    UserToRole utr = userToRoleDao.findByUserIdAndRoleId(userId, roleId);
-	    if(utr != null){
-	    	userToRoleDao.delete(utr.getId());
+	    if(CollectionUtils.isEmpty(roleIds)){
+	    	return;
 	    }
+	    roleIds.forEach(roleId -> {
+	    	UserToRole utr = userToRoleDao.findByUserIdAndRoleId(userId, roleId);
+		    if(utr != null){
+		    	userToRoleDao.delete(utr.getId());
+		    }
+	    });
     }
 
 	@Override
@@ -61,6 +66,20 @@ public class UserService extends BaseService<User> implements IUserService {
 		    }
 	    });
 	    
+    }
+	
+	@Override
+	public void update(User entity) {
+	    User old = dao.find(entity.getId());
+	    if(old != null){
+	    	old.setUsername(entity.getUsername());
+	    	dao.update(old);
+	    }
+	}
+
+	@Override
+    public User findByUsername(String username) {
+	    return dao.findOneByProperties(MapHolder.instance("username", username));
     }
 	
 }

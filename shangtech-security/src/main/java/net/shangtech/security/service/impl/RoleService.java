@@ -100,5 +100,41 @@ public class RoleService extends BaseService<Role> implements IRoleService {
 	    	});
 	    }
     }
+
+	@Override
+    public void auth(Long roleId, Long resourceId) {
+		Assert.notNull(roleId);
+		Assert.notNull(resourceId);
+	    RoleToResource rtr = roleToResourceDao.findByRoleIdAndResourceId(roleId, resourceId);
+	    if(rtr == null){
+	    	rtr = new RoleToResource();
+	    	rtr.setRoleId(roleId);
+	    	rtr.setResourceId(resourceId);
+	    	roleToResourceDao.save(rtr);
+	    }
+    }
+
+	@Override
+    public void removeAuth(Long roleId, Long resourceId) {
+		Assert.notNull(roleId);
+		Assert.notNull(resourceId);
+		RoleToResource rtr = roleToResourceDao.findByRoleIdAndResourceId(roleId, resourceId);
+		if(rtr != null){
+			roleToResourceDao.delete(rtr.getId());
+		}
+    }
+
+	@Override
+    public List<Long> findIdsByResourceId(Long resourceId) {
+		Assert.notNull(resourceId);
+		List<RoleToResource> roleToResources = roleToResourceDao.findByResourceId(resourceId);
+		List<Long> list = new ArrayList<>();
+		if(!CollectionUtils.isEmpty(roleToResources)){
+			roleToResources.forEach(rtr -> {
+				list.add(rtr.getRoleId());
+			});
+		}
+		return list;
+    }
 	
 }

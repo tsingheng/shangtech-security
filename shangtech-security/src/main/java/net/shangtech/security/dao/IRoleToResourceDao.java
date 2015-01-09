@@ -11,4 +11,6 @@ public interface IRoleToResourceDao extends IBaseDao<RoleToResource> {
 	
 	List<RoleToResource> findByResourceId(Long resourceId);
 	
+	RoleToResource findByRoleIdAndResourceId(Long roleId, Long resourceId);
+	
 }

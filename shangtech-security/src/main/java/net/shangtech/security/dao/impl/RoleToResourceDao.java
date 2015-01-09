@@ -22,4 +22,9 @@ public class RoleToResourceDao extends BaseDao<RoleToResource> implements IRoleT
 	    return findByProperties(MapHolder.instance("resourceId", resourceId));
     }
 
+	@Override
+    public RoleToResource findByRoleIdAndResourceId(Long roleId, Long resourceId) {
+	    return findOneByProperties(MapHolder.instance("roleId", roleId).put("resourceId", resourceId));
+    }
+
 }
