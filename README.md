@@ -1,4 +1,4 @@
 shangtech-security
 ==================
 
-An Security Framework based on Spring-Security
+A Security Framework based on Spring-Security
