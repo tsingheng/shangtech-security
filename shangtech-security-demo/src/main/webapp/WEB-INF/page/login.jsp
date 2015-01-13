@@ -19,13 +19,13 @@
 		        			<div class="form-group">
 		        				<div class="input-group">
 		        					<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-		        					<input type="text" name="j_username" class="form-control" placeholder="请输入系统账号">
+		        					<input type="text" name="j_username" value="guest" class="form-control" placeholder="请输入系统账号">
 		        				</div>
 		        			</div>
 		        			<div class="form-group">
 		        				<div class="input-group">
 		        					<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-		        					<input type="password" name="j_password" class="form-control" placeholder="请输入账号密码">
+		        					<input type="password" name="j_password" value="123456" class="form-control" placeholder="请输入账号密码">
 		        				</div>
 		        			</div>
 		      			</div>
