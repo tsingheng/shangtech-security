@@ -18,31 +18,52 @@
 	<http pattern="/favicon.ico" security="none"/>
 	
 	<authentication-manager alias="authenticationManager">
-        <authentication-provider user-service-url="userDetailsService"/>
+        <authentication-provider user-service-ref="userDetailsService"/>
     </authentication-manager>
 
+	<!-- userDetailsService,从数据库加载用户信息 -->
 	<beans:bean id="userDetailsService" class="net.shangtech.security.support.ShangtechUserDetailsService"/>
 	
-	<http>
+	<http authentication-manager-ref="authenticationManager">
 		<intercept-url pattern="/**"/>
-		<form-login login-page="/login" authentication-failure-handler-ref="authenticationFailureHandler" authentication-success-handler-ref="authenticationSuccessHandler"/>
+		<form-login login-page="/login" authentication-failure-handler-ref="authenticationFailureHandler"/>
 		<logout delete-cookies="JSESSIONID" invalidate-session="true" />
 		<session-management session-fixation-protection="migrateSession"/>
+		<!-- 拓展一个授权的过滤器 -->
+		<!-- 我其实只是想替换默认的SecurityMetadataSource,但是找不到方案 -->
+		<!-- 所以显式声明一个filter,其实用的还是默认的filter类,只是注入了自己实现的SecurityMetadataSource -->
+		<custom-filter ref="securityFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
 	</http>
 	
+	<!-- 登录失败之后的处理 -->
 	<beans:bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
 		<beans:property name="defaultFailureUrl" value="/login"></beans:property>
 		<beans:property name="useForward" value="true"></beans:property>
 	</beans:bean>
 	
-	<beans:bean id="authenticationSuccessHandler" class="net.shangtech.security.support.ShangtechAuthenticationSuccessHandler"/>
-	
-    <beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
+	<!-- spring security提供了三种AccessDecisionManager的实现,都在包org.springframework.security.access.vote中 -->
+	<!-- 1.AffirmativeBased:如果有任何一个投票器允许访问,请求将被立刻允许,而不管之前可能有的拒绝决定 -->
+	<!-- 2.ConsensusBased:以少胜多 -->
+	<!-- 3.UnanimousBased:所有的投票器必须是允许的,否则访问将被拒绝 -->
+	<!-- UnanimousBased好像有个坑,一开始以为AccessDecisionManager是可以配置多个voter,然后UnanimousBased我只配一个voter -->
+	<!-- 这个voter判断当前用户权限够不够访问当前资源所需权限,比如一个url需要权限ADMIN或者GUEST,而当前用户拥有GUEST权限,按理说应该通过的 -->
+	<!-- 结果是不通过,我看了源码他是拿所需要的权限一个一个去验证,有不符合的,就认为没有权限了 -->
+	<!-- 比如上面的例子会先验证当前用户有没有ADMIN角色,没有,没有权限,有的话,再去看有没有GUEST权限 -->
+    <beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
     	<beans:property name="decisionVoters">
     		<beans:list>
-    			
+    			<beans:bean class="org.springframework.security.access.vote.RoleVoter"/>
     		</beans:list>
     	</beans:property>
     </beans:bean>
 	
+	<!-- 所以显式声明一个filter,其实用的还是默认的filter类,只是注入了自己实现的SecurityMetadataSource -->
+	<beans:bean id="securityFilter" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<beans:property name="securityMetadataSource" ref="securityMetadataSource"/>
+		<beans:property name="authenticationManager" ref="authenticationManager"/>
+		<beans:property name="accessDecisionManager" ref="accessDecisionManager"/>
+	</beans:bean>
+	
+	<!-- 自己实现一个securityMetadataSource,从DB中加载系统[资源-角色]的MAP并缓存起来 -->
+	<beans:bean id="securityMetadataSource" class="net.shangtech.security.support.ShangtechSecurityMetadataSource"/>
 </beans:beans>

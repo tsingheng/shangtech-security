@@ -11,6 +11,7 @@ import net.shangtech.security.entity.Resource;
 import net.shangtech.security.entity.Role;
 import net.shangtech.security.service.IResourceService;
 import net.shangtech.security.service.IRoleService;
+import net.shangtech.security.support.ShangtechSecurityMetadataSource;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ public class RoleController {
 
 	@Autowired private IRoleService roleService;
 	@Autowired private IResourceService resourceService;
+	@Autowired private ShangtechSecurityMetadataSource securityMetadataSource;
 	
 	@RequestMapping("/list")
 	public String list(Pagination<Role> pagination, Model model){
@@ -56,6 +58,7 @@ public class RoleController {
 		else{
 			roleService.update(role);
 		}
+		securityMetadataSource.clear();
 		ajaxResponse.setSuccess(true);
 		return ajaxResponse;
 	}
@@ -65,6 +68,7 @@ public class RoleController {
 	public AjaxResponse auth(Long roleId, @RequestParam(value = "resourceIds[]", required = false) ArrayList<Long> resourceIds){
 		AjaxResponse ajaxResponse = AjaxResponse.instance();
 		roleService.auth(roleId, resourceIds);
+		securityMetadataSource.clear();
 		ajaxResponse.setSuccess(true);
 		return ajaxResponse;
 	}
@@ -74,6 +78,7 @@ public class RoleController {
 	public AjaxResponse addAuth(Long roleId, Long resourceId){
 		AjaxResponse ajaxResponse = AjaxResponse.instance();
 		roleService.auth(roleId, resourceId);
+		securityMetadataSource.clear();
 		ajaxResponse.setSuccess(true);
 		return ajaxResponse;
 	}
@@ -83,6 +88,7 @@ public class RoleController {
 	public AjaxResponse removeAuth(Long roleId, Long resourceId){
 		AjaxResponse ajaxResponse = AjaxResponse.instance();
 		roleService.removeAuth(roleId, resourceId);
+		securityMetadataSource.clear();
 		ajaxResponse.setSuccess(true);
 		return ajaxResponse;
 	}

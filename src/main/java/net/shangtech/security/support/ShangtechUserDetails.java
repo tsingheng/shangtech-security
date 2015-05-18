@@ -1,7 +1,6 @@
 package net.shangtech.security.support;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import net.shangtech.security.entity.User;
 
@@ -23,8 +22,9 @@ public class ShangtechUserDetails extends org.springframework.security.core.user
 	    super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
     }
 	
-	public ShangtechUserDetails(String username, String password){
-		super(username, password, true, true, true, true, new HashSet<GrantedAuthority>());
+	public ShangtechUserDetails(User user, Collection<? extends GrantedAuthority> authorities){
+		super(user.getUsername(), user.getPassword(), true, true, true, true, authorities);
+		this.user = user;
 	}
 
 	public User getUser() {
